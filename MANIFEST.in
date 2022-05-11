@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include holistic *.css
+recursive-include holistic *.csv
+recursive-include holistic *.html
+recursive-include holistic *.ico
+recursive-include holistic *.js
+recursive-include holistic *.json
+recursive-include holistic *.md
+recursive-include holistic *.png
+recursive-include holistic *.py
+recursive-include holistic *.svg
+recursive-include holistic *.txt
+recursive-exclude holistic *.pyc
