@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-05-11 16:58:17.744055",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "appointment_interval"
+ ],
+ "fields": [
+  {
+   "description": "Ex: 2 days. Appointment will be created after 2 days. \ni.e. 1st appointment: 1st May\n2nd appointment : 3rd May",
+   "fieldname": "appointment_interval",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Appointment Interval (Days)",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2022-05-11 17:00:48.893109",
+ "modified_by": "Administrator",
+ "module": "Holistic",
+ "name": "Holistic Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

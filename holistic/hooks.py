@@ -15,7 +15,7 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/holistic/css/holistic.css"
 # app_include_js = "/assets/holistic/js/holistic.js"
-
+app_include_js =  ["/assets/holistic/js/markerjs2.js"]
 # include js, css files in header of web template
 # web_include_css = "/assets/holistic/css/holistic.css"
 # web_include_js = "/assets/holistic/js/holistic.js"
@@ -31,7 +31,7 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Patient Appointment" : "public/js/patient_appointment.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -64,7 +64,7 @@ app_license = "MIT"
 
 # before_uninstall = "holistic.uninstall.before_uninstall"
 # after_uninstall = "holistic.uninstall.after_uninstall"
-
+after_migrate = "holistic.api.after_migrations"
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config

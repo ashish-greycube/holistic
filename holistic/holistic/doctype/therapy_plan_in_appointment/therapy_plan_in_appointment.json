@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "creation": "2022-04-07 16:29:22.081793",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "department",
+  "healthcare_practitioner_follow_up",
+  "no_of_sessions",
+  "time",
+  "column_break_4",
+  "booked_treatment_appointments",
+  "book_appointment"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "default": "1",
+   "fieldname": "no_of_sessions",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "No of Sessions",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Time (min)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 3,
+   "fieldname": "healthcare_practitioner_follow_up",
+   "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Healthcare Practitioner follow up ",
+   "options": "Healthcare Practitioner",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "depends_on": "eval:parent.appointment_date && doc.booked_treatment_appointments==undefined",
+   "fieldname": "book_appointment",
+   "fieldtype": "Button",
+   "label": "Book Appointment"
+  },
+  {
+   "columns": 2,
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Therapy Type",
+   "options": "Medical Department",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "booked_treatment_appointments",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Booked Treatment Appointments",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-05-14 14:53:22.893491",
+ "modified_by": "Administrator",
+ "module": "Holistic",
+ "name": "Therapy plan in appointment",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
