@@ -78,6 +78,8 @@ def book_patient_appointment(date, practitioner,no_of_sessions,time,department,p
 		return "no appointment created"
 
 def create_child_item_appointment(parent_doc_name,child_fields,department):
+	print('-'*100)
+	print('department',department)
 	parent_doc=frappe.get_doc("Patient Appointment", parent_doc_name)
 	child_doc={
 		'doctype': 'Patient Appointment',
@@ -102,6 +104,7 @@ def create_child_item_appointment(parent_doc_name,child_fields,department):
 	}
 	child=frappe.get_doc(child_doc)
 	child.insert(ignore_permissions=True)
+	frappe.db.set_value("Patient Appointment",child.name,'department', department)
 	return child.name
 
 @frappe.whitelist()
@@ -193,7 +196,8 @@ def get_available_slots(practitioner_doc, date,schedule_duration):
 
 			if available_slots:
 				appointments = []
-				allow_overlap = 0
+				# overlap changes
+				allow_overlap = 1
 				service_unit_capacity = 0
 				# fetch all appointments to practitioner by service unit
 				filters = {
@@ -210,6 +214,8 @@ def get_available_slots(practitioner_doc, date,schedule_duration):
 						schedule_entry.service_unit,
 						["overlap_appointments", "service_unit_capacity"],
 					)
+					# overlap changes
+					allow_overlap=1
 					if not allow_overlap:
 						# fetch all appointments to service unit
 						filters.pop("practitioner")

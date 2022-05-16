@@ -3,6 +3,22 @@ var targetRoot;
 var maState;
 
 frappe.ui.form.on("Patient Appointment", {
+  tc_name: function(frm) {
+		if(frm.doc.tc_name) {
+			return frappe.call({
+				method: 'holistic.holistic.doctype.physio_assessment.physio_assessment.get_terms_and_conditions',
+				args: {
+					template_name: frm.doc.tc_name,
+					doc: frm.doc
+				},
+				callback: function(r) {
+          if (!r.exc) {
+            frm.set_value("terms", r.message);
+          }
+				}
+			});
+		}
+	},
   refresh: function(frm) {
     if (frm.doc.__islocal == undefined && frm.doc.ref_sales_invoice == undefined ) {
       frm.add_custom_button('Sales Invoice', () => {
@@ -37,8 +53,8 @@ frappe.ui.form.on("Patient Appointment", {
 	onload_post_render: function(frm) {
     $(frm.fields_dict['patient_detail_html_cf'].wrapper)
     .html('<div  style="position: relative; display: flex;flex-direction: column;align-items: center;justify-content: center;padding-top: 50px;"> \
-    <img  id="sourceImage"   src="/assets/holistic/image/humanbody.png" style="max-width: 900px; max-height: 80%;"  crossorigin="anonymous" /> \
-    <img  id="sampleImage"   src="/assets/holistic/image/humanbody.png"  style="max-width: 900px; max-height: 100%; position: absolute;" crossorigin="anonymous" /> \
+    <img  id="sourceImage"   src="/assets/holistic/image/merged_humanbody.png" style="max-width: 900px; max-height: 80%;"  crossorigin="anonymous" /> \
+    <img  id="sampleImage"   src="/assets/holistic/image/merged_humanbody.png"  style="max-width: 900px; max-height: 100%; position: absolute;" crossorigin="anonymous" /> \
     </div>');
 
     setSourceImage(document.getElementById("sourceImage"));
