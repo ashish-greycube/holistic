@@ -95,13 +95,11 @@ after_migrate = "holistic.api.after_migrations"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"Sales Invoice": {
+		"before_cancel": "holistic.api.remove_si_reference_from_patient_appointment",
+	}
+}
 
 # Scheduled Tasks
 # ---------------

@@ -353,5 +353,13 @@ def create_sales_invoice(appointment_doc):
 	frappe.db.set_value(
 		"Patient Appointment",
 		appointment_doc.name,
-		{"invoiced": 1, "holistic_ref_sales_invoice": sales_invoice.name},
+		{"holistic_ref_sales_invoice": sales_invoice.name},
 	)		
+
+
+def remove_si_reference_from_patient_appointment(self,method):
+	print('-'*100)
+	patient_appointment=frappe.db.get_all('Patient Appointment', filters={'holistic_ref_sales_invoice': self.name})
+	if len(patient_appointment)>0:
+		frappe.db.set_value("Patient Appointment",patient_appointment[0].name,{"holistic_ref_sales_invoice": None},)			
+		frappe.msgprint(_("Sales Invoice reference is removed from  Patient Appointment {0}").format(get_link_to_form('Patient Appointment',patient_appointment[0].name)), alert=True)
