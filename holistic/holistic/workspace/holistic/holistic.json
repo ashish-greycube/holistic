@@ -66,6 +66,16 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Physio Assessment",
+   "link_to": "Physio Assessment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Transaction",
    "link_type": "DocType",
    "onboard": 0,
@@ -90,7 +100,7 @@
    "type": "Link"
   }
  ],
- "modified": "2022-05-14 14:07:30.168768",
+ "modified": "2022-05-16 17:15:01.095794",
  "modified_by": "Administrator",
  "module": "Holistic",
  "name": "Holistic",
