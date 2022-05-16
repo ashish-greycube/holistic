@@ -7,7 +7,7 @@ from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import flt, get_link_to_form, get_time, getdate,add_days,cint,get_datetime,get_time_str,to_timedelta,get_timedelta
+from frappe.utils import flt, get_link_to_form, get_time, getdate,add_days,cint,get_datetime,get_time_str,to_timedelta,get_timedelta,get_date_str,format_date
 from erpnext.hr.doctype.employee.employee import is_holiday
 from frappe.utils.csvutils import getlink
 from frappe.model.naming import set_name_by_naming_series
@@ -18,7 +18,7 @@ from erpnext.stock.get_item_details import get_price_list_rate_for, process_args
 
 def after_migrations():
 	update_dashboard_link_for_core_doctype(doctype='Patient Appointment',link_doctype='Patient Appointment',link_fieldname='parent_patient_appointment_cf',group='Treatment Plan')
-	update_dashboard_link_for_core_doctype(doctype='Sales Invoice',link_doctype='Patient Appointment',link_fieldname='ref_sales_invoice',group='Patient Appointment')
+	update_dashboard_link_for_core_doctype(doctype='Sales Invoice',link_doctype='Patient Appointment',link_fieldname='holistic_ref_sales_invoice',group='Patient Appointment')
 
 def update_dashboard_link_for_core_doctype(doctype,link_doctype,link_fieldname,group=None):
 	try:
@@ -41,9 +41,13 @@ def book_patient_appointment(date, practitioner,no_of_sessions,time,department,p
 	date = getdate(date)
 	last_parent_doc=frappe.get_doc("Patient Appointment", parent_doc)
 	appointment_interval= frappe.db.get_single_value('Holistic Settings', 'appointment_interval') or 1
+	step_index=0
+	for step in last_parent_doc.therapy_steps:
+		if step.booked_treatment_appointments:
+			step_index=step.idx
 
-	if last_parent_doc.therapy_steps and last_parent_doc.therapy_steps[-1].booked_treatment_appointments:
-		last_booked_treatment_appointment=last_parent_doc.therapy_steps[-1].booked_treatment_appointments.split("\n")[-1]
+	if step_index>0 and last_parent_doc.therapy_steps and last_parent_doc.therapy_steps[step_index-1].booked_treatment_appointments:
+		last_booked_treatment_appointment=last_parent_doc.therapy_steps[step_index-1].booked_treatment_appointments.split("\n")[-1].split(", ")[0]
 		last_appointment_date=frappe.db.get_value("Patient Appointment", last_booked_treatment_appointment, 'appointment_date')
 		next_date=add_days(last_appointment_date,appointment_interval)
 	else:
@@ -61,8 +65,9 @@ def book_patient_appointment(date, practitioner,no_of_sessions,time,department,p
 
 		if appointment != -1:
 			child_doc_name=create_child_item_appointment(parent_doc,appointment,department)
+			child_doc_detail=child_doc_name+', '+format_date(get_date_str(appointment['appointment_date']))+', '+get_time_str(appointment['appointment_time'])
 			child_doc_msg.append(_("Treatment Plan Appointment:{0} is created".format(getlink("Patient Appointment", child_doc_name))))	
-			child_doc_names.append(child_doc_name)		
+			child_doc_names.append(child_doc_detail)		
 			next_date=add_days(next_date,appointment_interval)
 		
 	if len(child_doc_msg)>0:
@@ -84,6 +89,8 @@ def create_child_item_appointment(parent_doc_name,child_fields,department):
 		'company':parent_doc.company,
 		'practitioner':child_fields['practitioner'],
 		'department':department,
+		'patient_detail_annotation_cf':parent_doc.patient_detail_annotation_cf,
+		'annotated_patient_detail_image_cf':parent_doc.annotated_patient_detail_image_cf,
 		'parent_patient_appointment_cf':parent_doc.name,
 		'service_unit':child_fields['service_unit'],
 		'appointment_type':parent_doc.appointment_type,
@@ -346,5 +353,5 @@ def create_sales_invoice(appointment_doc):
 	frappe.db.set_value(
 		"Patient Appointment",
 		appointment_doc.name,
-		{"invoiced": 1, "ref_sales_invoice": sales_invoice.name},
+		{"invoiced": 1, "holistic_ref_sales_invoice": sales_invoice.name},
 	)		

@@ -81,7 +81,10 @@ function showMarkerArea(target) {
 
 frappe.ui.form.on("Therapy plan in appointment",{
   book_appointment:function(frm,cdt,cdn) {
-    let row=locals[cdt][cdn]
+    if (frm.is_dirty()==true) {
+      frappe.msgprint(__('Please save the form first.'));
+    } else {
+      let row=locals[cdt][cdn]
     frappe.call({
       method: 'holistic.api.book_patient_appointment',
       args: {
@@ -104,6 +107,8 @@ frappe.ui.form.on("Therapy plan in appointment",{
         // frm.enable_save();
 				frm.save();
       }
-    })    
+    })      
+    }
+  
   }
 })
