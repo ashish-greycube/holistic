@@ -93,6 +93,8 @@ def create_child_item_appointment(parent_doc_name,child_fields,department):
 		'department':department,
 		'patient_detail_annotation_cf':parent_doc.patient_detail_annotation_cf,
 		'annotated_patient_detail_image_cf':parent_doc.annotated_patient_detail_image_cf,
+		'tc_name':parent_doc.tc_name,
+		'terms':parent_doc.terms,
 		'parent_patient_appointment_cf':parent_doc.name,
 		'service_unit':child_fields['service_unit'],
 		'appointment_type':parent_doc.appointment_type,
