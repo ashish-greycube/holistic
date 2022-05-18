@@ -7,7 +7,7 @@ from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import flt, get_link_to_form, get_time, getdate,add_days,cint,get_datetime,get_time_str,to_timedelta,get_timedelta,get_date_str,format_date
+from frappe.utils import flt, get_link_to_form, get_time, getdate,add_days,cint,get_datetime,get_time_str,to_timedelta,get_timedelta,get_date_str,format_date,get_url_to_form
 from erpnext.hr.doctype.employee.employee import is_holiday
 from frappe.utils.csvutils import getlink
 from frappe.model.naming import set_name_by_naming_series
@@ -18,7 +18,7 @@ from erpnext.stock.get_item_details import get_price_list_rate_for, process_args
 
 def after_migrations():
 	update_dashboard_link_for_core_doctype(doctype='Patient Appointment',link_doctype='Patient Appointment',link_fieldname='parent_patient_appointment_cf',group='Treatment Plan')
-	update_dashboard_link_for_core_doctype(doctype='Sales Invoice',link_doctype='Patient Appointment',link_fieldname='holistic_ref_sales_invoice',group='Patient Appointment')
+	update_dashboard_link_for_core_doctype(doctype='Patient Appointment',link_doctype='Sales Invoice',link_fieldname='holistic_ref_patient_appointment',group='Sales Invoice')
 
 def update_dashboard_link_for_core_doctype(doctype,link_doctype,link_fieldname,group=None):
 	try:
@@ -310,7 +310,7 @@ def get_appointment_item(department,patient,practitioner,company,qty,name, item)
 	args = {
 		"price_list": frappe.db.get_single_value('Selling Settings', 'selling_price_list'),
 		"customer":  frappe.get_value("Patient", patient, "customer"),
-		"qty": 1,
+		"qty": qty,
 	}
 
 	price = get_price_list_rate_for(process_args(args), item_code)		
@@ -319,17 +319,25 @@ def get_appointment_item(department,patient,practitioner,company,qty,name, item)
 	item.income_account = get_income_account(practitioner, company)
 	item.cost_center = frappe.get_cached_value("Company",company, "cost_center")
 	item.rate = price
-	item.amount = price
+	item.amount = price*qty
 	item.qty = qty
 	# item.reference_dt = "Patient Appointment"
-	# item.reference_dn = name
+	item.holistic_ref_patient_appointment_item = name
 	return item
 
 @frappe.whitelist()
 def create_sales_invoice(appointment_doc):
 	appointment_doc=frappe.get_doc("Patient Appointment", appointment_doc)
+	if appointment_doc.parent_patient_appointment_cf:
+		frappe.throw(
+			_("Sales Invoice cannot be created for Treatment Appointment.(Child). Please use {0}.").format(
+				get_link_to_form('Patient Appointment',appointment_doc.parent_patient_appointment_cf)
+			),
+			title=_("Treatment Appointment.(Child) Error."),
+		)		
 	sales_invoice = frappe.new_doc("Sales Invoice")
 	sales_invoice.patient = appointment_doc.patient
+	sales_invoice.holistic_ref_patient_appointment=appointment_doc.name
 	sales_invoice.customer = frappe.get_value("Patient", appointment_doc.patient, "customer")
 	sales_invoice.appointment = appointment_doc.name
 	sales_invoice.due_date = getdate()
@@ -338,13 +346,25 @@ def create_sales_invoice(appointment_doc):
 
 	if not appointment_doc.parent_patient_appointment_cf and len(appointment_doc.therapy_steps)>0:
 		for therapy_item in appointment_doc.therapy_steps:
-			item = sales_invoice.append("items", {})
-			item = get_appointment_item(department=therapy_item.department,patient=appointment_doc.patient,
-									practitioner=therapy_item.healthcare_practitioner_follow_up,company=appointment_doc.company,qty=therapy_item.no_of_sessions,name=appointment_doc.name,item=item)
-	else:
-		item = sales_invoice.append("items", {})
-		item = get_appointment_item(department=appointment_doc.department,patient=appointment_doc.patient,
-									practitioner=appointment_doc.practitioner,company=appointment_doc.company,qty=1,name=appointment_doc.name,item=item)
+			previous_qty=0
+			previous_qty_data=frappe.db.get_list('Sales Invoice Item', filters={'holistic_ref_patient_appointment_item': therapy_item.name,'docstatus':1},fields=['qty'],pluck='qty')
+			if len(previous_qty_data)>0:
+				for prev_qty in previous_qty_data:
+					previous_qty=prev_qty+previous_qty
+			print('previous_qty',previous_qty)	
+			actual_qty=flt(therapy_item.no_of_sessions-previous_qty)
+			if actual_qty>0:
+				item = sales_invoice.append("items", {})
+				item = get_appointment_item(department=therapy_item.department,patient=appointment_doc.patient,
+									practitioner=therapy_item.healthcare_practitioner_follow_up,company=appointment_doc.company,qty=actual_qty,name=therapy_item.name,item=item)
+	print(sales_invoice.get('items'),"sales_invoice.get('items')")
+	if len(sales_invoice.get('items'))==0:
+		frappe.throw(
+			_("Sales Invoice cannot be created as there are no pending items"),
+			title=_("No eligible Item."),
+		)		
+
+	
 
 	# Add payments if payment details are supplied else proceed to create invoice as Unpaid
 	if appointment_doc.mode_of_payment and appointment_doc.paid_amount:
@@ -354,20 +374,27 @@ def create_sales_invoice(appointment_doc):
 		payment.amount = appointment_doc.paid_amount
 
 	sales_invoice.set_missing_values(for_validate=True)
-	sales_invoice.flags.ignore_mandatory = True
+	sales_invoice.run_method('set_missing_values')
+	sales_invoice.run_method('calculate_taxes_and_total')
+	# sales_invoice.flags.ignore_mandatory = True
 	sales_invoice.save(ignore_permissions=True)
 	# sales_invoice.submit()
 	frappe.msgprint(_("Sales Invoice {0} created").format(get_link_to_form('Sales Invoice',sales_invoice.name)), alert=True)
+	if appointment_doc.holistic_ref_sales_invoices:
+		holistic_ref_sales_invoices=appointment_doc.holistic_ref_sales_invoices+'\n'+sales_invoice.name
+	else:
+		holistic_ref_sales_invoices=sales_invoice.name
 	frappe.db.set_value(
 		"Patient Appointment",
 		appointment_doc.name,
-		{"holistic_ref_sales_invoice": sales_invoice.name},
-	)		
+		{"holistic_ref_sales_invoices": holistic_ref_sales_invoices},
+	)	
+	return 	get_url_to_form('Sales Invoice',sales_invoice.name)
 
 
 def remove_si_reference_from_patient_appointment(self,method):
 	print('-'*100)
-	patient_appointment=frappe.db.get_all('Patient Appointment', filters={'holistic_ref_sales_invoice': self.name})
+	patient_appointment=frappe.db.get_all('Patient Appointment', filters={'holistic_ref_sales_invoices': self.name})
 	if len(patient_appointment)>0:
-		frappe.db.set_value("Patient Appointment",patient_appointment[0].name,{"holistic_ref_sales_invoice": None},)			
+		frappe.db.set_value("Patient Appointment",patient_appointment[0].name,{"holistic_ref_sales_invoices": None},)			
 		frappe.msgprint(_("Sales Invoice reference is removed from  Patient Appointment {0}").format(get_link_to_form('Patient Appointment',patient_appointment[0].name)), alert=True)

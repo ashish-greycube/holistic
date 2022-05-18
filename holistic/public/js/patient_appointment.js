@@ -21,12 +21,14 @@ frappe.ui.form.on("Patient Appointment", {
   },
   refresh: function (frm) {
 
-    if (frm.doc.__islocal == undefined && frm.doc.ref_sales_invoice == undefined) {
+    if (frm.doc.__islocal == undefined && frm.doc.parent_patient_appointment_cf == undefined && frm.doc.therapy_steps &&   frm.doc.therapy_steps.length >0  ) {
       frm.add_custom_button('Sales Invoice', () => {
         frappe.call('holistic.api.create_sales_invoice', {
           appointment_doc: frm.doc.name
         }).then(r => {
           console.log(r.message)
+          window.open(r.message, '_blank');
+          // frappe.set_route("Form", 'Sales Invoice', r.message);
         })
       }, 'Create');
     }
