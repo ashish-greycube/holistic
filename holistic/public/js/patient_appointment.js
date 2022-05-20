@@ -32,13 +32,13 @@ frappe.ui.form.on("Patient Appointment", {
         })
       }, 'Create');
     }
-    frm.set_query('appointment_type', function () {
-      return {
-        filters: {
-          'default_duration': 0
-        }
-      };
-    });
+    // frm.set_query('appointment_type', function () {
+    //   return {
+    //     filters: {
+    //       'default_duration': 0
+    //     }
+    //   };
+    // });
 
     if (frm.doc.__islocal == undefined) {
       let intro = frm.doc.parent_patient_appointment_cf ?

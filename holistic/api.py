@@ -259,7 +259,7 @@ def get_available_slots(practitioner_doc, date,schedule_duration):
 
 				child_slot={
 					"appointment_time":available_slots[0],
-					"duration":0,
+					"duration":schedule_duration,
 					"practitioner":practitioner_doc.practitioner_name,
 					"appointment_date":date,
 					"service_unit":schedule_entry.service_unit
