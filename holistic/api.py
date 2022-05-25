@@ -90,7 +90,6 @@ def create_child_item_appointment(parent_doc_name,child_fields,department):
 		'inpatient_record':parent_doc.inpatient_record,
 		'company':parent_doc.company,
 		'practitioner':child_fields['practitioner'],
-		'department':department,
 		'patient_detail_annotation_cf':parent_doc.patient_detail_annotation_cf,
 		'annotated_patient_detail_image_cf':parent_doc.annotated_patient_detail_image_cf,
 		'tc_name':parent_doc.tc_name,
