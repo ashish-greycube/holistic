@@ -96,7 +96,6 @@ def create_child_item_appointment(parent_doc_name,child_fields,department):
 		'terms':parent_doc.terms,
 		'parent_patient_appointment_cf':parent_doc.name,
 		'service_unit':child_fields['service_unit'],
-		'appointment_type':parent_doc.appointment_type,
 		'complaint_cf':parent_doc.complaint_cf,
 		'diagnosis_cf':parent_doc.diagnosis_cf,
 		'appointment_date':child_fields['appointment_date'],
@@ -106,6 +105,7 @@ def create_child_item_appointment(parent_doc_name,child_fields,department):
 	child.insert(ignore_permissions=True)
 	frappe.db.set_value("Patient Appointment",child.name,'department', department)
 	frappe.db.set_value("Patient Appointment",child.name,'duration', child_fields['duration'])
+	frappe.db.set_value("Patient Appointment",child.name,'appointment_type', parent_doc.appointment_type)
 	return child.name
 
 @frappe.whitelist()
