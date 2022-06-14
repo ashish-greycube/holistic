@@ -397,3 +397,43 @@ def remove_si_reference_from_patient_appointment(self,method):
 	if len(patient_appointment)>0:
 		frappe.db.set_value("Patient Appointment",patient_appointment[0].name,{"holistic_ref_sales_invoices": None},)			
 		frappe.msgprint(_("Sales Invoice reference is removed from  Patient Appointment {0}").format(get_link_to_form('Patient Appointment',patient_appointment[0].name)), alert=True)
+
+
+@frappe.whitelist()
+def get_events(start, end, filters=None):
+	"""Returns events for Gantt / Calendar view rendering.
+
+	:param start: Start date-time.
+	:param end: End date-time.
+	:param filters: Filters (JSON).
+	"""
+	from frappe.desk.calendar import get_event_conditions
+
+	conditions = get_event_conditions("Patient Appointment", filters)
+	#  child color = #ECAD4B = orange
+	#  parent color = #B4CD29 = light green
+	data = frappe.db.sql(
+		"""
+		select
+		`tabPatient Appointment`.name, `tabPatient Appointment`.patient,
+		`tabPatient Appointment`.practitioner, `tabPatient Appointment`.status,
+		`tabPatient Appointment`.duration,
+		timestamp(`tabPatient Appointment`.appointment_date, `tabPatient Appointment`.appointment_time) as 'start',
+		IF( `tabPatient Appointment`.parent_patient_appointment_cf is null,'#eaf5ee','#fdf4e2') as color
+		from
+		`tabPatient Appointment`
+		left join `tabAppointment Type` on `tabPatient Appointment`.appointment_type=`tabAppointment Type`.name
+		where
+		(`tabPatient Appointment`.appointment_date between %(start)s and %(end)s)
+		and `tabPatient Appointment`.status != 'Cancelled' and `tabPatient Appointment`.docstatus < 2 {conditions}""".format(
+			conditions=conditions
+		),
+		{"start": start, "end": end},
+		as_dict=True,
+		update={"allDay": 0},
+	)
+
+	for item in data:
+		item.end = item.start + datetime.timedelta(minutes=item.duration)
+
+	return data

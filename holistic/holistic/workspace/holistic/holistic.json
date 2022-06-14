@@ -100,12 +100,19 @@
    "type": "Link"
   }
  ],
- "modified": "2022-05-16 17:15:01.095794",
+ "modified": "2022-06-07 09:10:28.061563",
  "modified_by": "Administrator",
  "module": "Holistic",
  "name": "Holistic",
  "owner": "Administrator",
  "pin_to_bottom": 0,
  "pin_to_top": 1,
- "shortcuts": []
+ "shortcuts": [
+  {
+   "doc_view": "Calendar",
+   "label": "Appointment Calendar",
+   "link_to": "Patient Appointment",
+   "type": "DocType"
+  }
+ ]
 }
