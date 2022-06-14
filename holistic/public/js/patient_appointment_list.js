@@ -14,9 +14,9 @@ frappe.listview_settings['Patient Appointment'] = {
 		// };
         console.log('doc.parent_patient_appointment_cf',doc.parent_patient_appointment_cf)
         if (doc.parent_patient_appointment_cf== undefined){
-            return [__(doc.status), "green", "status,=," + doc.status];
+            return [__(doc.status), "blue", "status,=," + doc.status];
         }else{
-            return [__(doc.status), "yellow", "status,=," + doc.status];
+            return [__(doc.status), "green", "status,=," + doc.status];
         }
 		// return [__(doc.status), colors[doc.status], "status,=," + doc.status];
 	}
