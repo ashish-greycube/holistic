@@ -20,6 +20,20 @@ frappe.ui.form.on("Patient Appointment", {
     }
   },
   refresh: function (frm) {
+    if (frm.doc.__islocal == undefined && frm.doc.status != 'Closed') {
+      frm.add_custom_button('Done', () => {
+        frappe.call({
+          method: 'holistic.api.update_to__closed_status',
+          args: { appointment_id: frm.doc.name, status: 'Closed' },
+          callback: function(data) {
+            if (!data.exc) {
+              frm.reload_doc();
+            }
+          }
+        });
+      });
+      $('button:contains("Done")').css({'color': 'red'})
+    }
 
     if (frm.doc.__islocal == undefined && frm.doc.parent_patient_appointment_cf == undefined && frm.doc.therapy_steps &&   frm.doc.therapy_steps.length >0  ) {
       frm.add_custom_button('Sales Invoice', () => {

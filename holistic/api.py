@@ -437,3 +437,13 @@ def get_events(start, end, filters=None):
 		item.end = item.start + datetime.timedelta(minutes=item.duration)
 
 	return data
+
+@frappe.whitelist()
+def update_to__closed_status(appointment_id, status):
+	frappe.db.set_value("Patient Appointment", appointment_id, "status", status)
+
+@frappe.whitelist()
+def stop_save_for_closed_status(self,method):
+	print('-'*100,self.status)
+	if self.status=='Closed':
+		frappe.throw(title='Error',msg=_('Cannot make any changes to this appointment with status {0} '.format(frappe.bold(self.status))))			

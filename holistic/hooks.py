@@ -96,6 +96,9 @@ after_migrate = "holistic.api.after_migrations"
 # Hook on document methods and events
 
 doc_events = {
+	"Patient Appointment":{
+		"validate":"holistic.api.stop_save_for_closed_status"
+	},
 	"Sales Invoice": {
 		"before_cancel": "holistic.api.remove_si_reference_from_patient_appointment",
 	}
