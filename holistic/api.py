@@ -419,7 +419,7 @@ def get_events(start, end, filters=None):
 		`tabPatient Appointment`.practitioner, `tabPatient Appointment`.status,
 		`tabPatient Appointment`.duration,
 		timestamp(`tabPatient Appointment`.appointment_date, `tabPatient Appointment`.appointment_time) as 'start',
-		IF( `tabPatient Appointment`.parent_patient_appointment_cf is null,'#2176c0','#3b965c') as color
+		IF( ( `tabPatient Appointment`.parent_patient_appointment_cf is null or `tabPatient Appointment`.parent_patient_appointment_cf='' ),'#2176c0','#3b965c') as color
 		from
 		`tabPatient Appointment`
 		left join `tabAppointment Type` on `tabPatient Appointment`.appointment_type=`tabAppointment Type`.name

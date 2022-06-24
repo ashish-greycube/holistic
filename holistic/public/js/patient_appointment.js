@@ -20,6 +20,16 @@ frappe.ui.form.on("Patient Appointment", {
     }
   },
   refresh: function (frm) {
+    if (frm.doc.__islocal == undefined && (frm.doc.parent_patient_appointment_cf == undefined || frm.doc.parent_patient_appointment_cf =='')){
+      frm.add_custom_button('Print All', () => {
+        let url = `/api/method/holistic.holistic.print_format.patient_appointment_list.__init__.get_appointment_list_details`,
+        args = {
+          docname: frm.doc.name,
+        };
+        open_url_post(url, args, true);	 
+    })
+    $('button:contains("Print All")').css({'color': 'brown'})
+    }
     if (frm.doc.__islocal == undefined && frm.doc.status != 'Closed') {
       frm.add_custom_button('Done', () => {
         frappe.call({

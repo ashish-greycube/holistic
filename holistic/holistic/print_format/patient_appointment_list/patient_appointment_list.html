@@ -1,0 +1,134 @@
+<div >
+    {% if letter_head and not no_letterhead -%}
+      <div class="letter-head">{{ letter_head }}</div>
+      <hr>
+    {%- endif %}
+  
+    <div><h2 class="text-uppercase text-center"><b>{{ _("جدول مواعيد المرضى") }}</b></h2></div>
+    <div><h2 class="text-uppercase text-center"><b>Patient schedule appointments</b></h2></div>
+      <br/>
+      <div class="row section-break">
+  
+        <div class="row">
+          <div class="col-xs-3 test-left">
+            <label>&nbsp;&emsp;Name</label>
+          </div>
+          {% if doc.patient_name %}
+          <div class="col-xs-6  test-left value">
+            {{ doc.patient_name }}
+          </div>
+          {% else %}
+          <div class="col-xs-6  test-left value">
+            {{ doc.patient }}
+          </div>
+          {%- endif -%}
+          <div class="col-xs-3 test-left">
+            <label>{{ _("الاسم") }}</label>
+          </div>          
+        </div>
+  
+        <div class="row">
+          <div class="col-xs-3 test-left">
+            <label>&nbsp;&emsp;File No</label>
+          </div>
+          <div class="col-xs-6  value test-left">
+            {{ doc.name }}
+          </div>
+          <div class="col-xs-3 test-left">
+            <label>{{ _("رقم الملف") }}</label>
+          </div>          
+        </div>
+
+        <div class="row">
+          <div class="col-xs-3 test-left">
+            <label>&nbsp;&emsp;Age</label>
+          </div>
+          <div class="col-xs-6  value test-left">
+            {{  doc.patient_age_str }}
+          </div>
+          <div class="col-xs-3 test-left">
+            <label>{{ _("العمر") }}</label>
+          </div>          
+        </div>
+  
+        <div class="row">
+          <div class="col-xs-3 test-left">
+            <label>&nbsp;&emsp;Gender</label>
+          </div>
+          <div class="col-xs-6  value test-left">
+            {{ doc.patient_sex or '' }}
+          </div>
+          <div class="col-xs-3 test-left">
+            <label>{{ _("الجنس") }}</label>
+          </div>          
+        </div>
+  
+        <div class="row">
+          <div class="col-xs-3 test-left">
+            <label>&nbsp;&emsp;Date</label>
+          </div>
+          <div class="col-xs-6  value test-left">
+            {{frappe.format_date(doc.creation)}}
+          </div>
+          <div class="col-xs-3 test-left">
+            <label>{{ _("التاريخ") }}</label>
+          </div>          
+        </div>
+        
+        <div class="row">
+          <div class="col-xs-3 test-left">
+            <label>&nbsp;&emsp;Referral doctor</label>
+          </div>
+          <div class="col-xs-6  value test-left">
+            {{ doc.practitioner or '' }}
+          </div>
+          <div class="col-xs-3 test-left">
+            <label>{{ _("تحويل الطبيب ") }}</label>
+          </div>          
+        </div>        
+    </div>
+  
+
+  
+      <table class="table table-bordered">
+      <tbody>
+        {%- if doc.all_appointments -%}
+        <tr>
+          <th  class="text-left">Time</th>
+          <th class="text-left">Date</th>
+          <th class="text-left">Service</th>
+          <th class="text-right">Day</th>
+        </tr>
+  
+
+        {%- for row in doc.all_appointments -%}
+        <tr>
+          <td style="width: 25%;text-align: left">
+            {%- if row.appointment_time -%}&nbsp;{{ row.appointment_time }}{%- endif -%}
+          </td>
+  
+          <td style="width: 25%;text-align: left">
+            {%- if row.appointment_date -%}&nbsp;{{ frappe.format( row.appointment_date , {'fieldtype': 'Date'}) }}{%- endif -%}
+          </td>
+  
+          <td style="width: 30%;text-align: left">
+            <div style="border: 0px;">
+              {%- if row.service_unit -%}{{ row.service_unit }}{%- endif -%}
+            </div>
+          </td>
+
+          <td style="width: 20%;text-align: right">
+            <div style="border: 0px;">
+              {%- if row.day -%}{{ row.day }}{%- endif -%}
+            </div>
+          </td>          
+        </tr>
+  
+        {%- endfor -%}
+        {%- endif -%}
+      </tbody>
+    </table>
+  
+
+
+  </div>
